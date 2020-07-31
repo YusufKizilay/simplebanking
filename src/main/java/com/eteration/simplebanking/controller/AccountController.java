@@ -1,17 +1,56 @@
 package com.eteration.simplebanking.controller;
 
-// This class is a place holder you can change the complete implementation
+
+import com.eteration.simplebanking.model.*;
+import com.eteration.simplebanking.services.AccountService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping("/account/v1")
 public class AccountController {
 
+    private AccountService accountService;
 
-    public Object getAccount() {
-        return null;
+    @Autowired
+    public AccountController(AccountService accountService) {
+        this.accountService = accountService;
     }
 
-    public Object credit( ) {
-        return null;
+    @PostMapping
+    public ResponseEntity<Account> saveAccount(@RequestBody Account accountToSave) {
+        Account account = accountService.saveAccount(accountToSave);
+
+        return new ResponseEntity<>(account, HttpStatus.CREATED);
     }
-    public Object debit() {
-        return null;
-	}
+
+    @PostMapping("/credit/{accountNo}")
+    public ResponseEntity<TransactionStatus> credit(@PathVariable String accountNo, @RequestBody DepositTransaction transaction) throws AccountNotFoundException, InsufficientBalanceException {
+        Account account = accountService.findAccount(accountNo);
+
+        account.post(transaction);
+
+        accountService.saveAccount(account);
+
+        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK, transaction.getApprovalCode()), HttpStatus.OK);
+    }
+
+    @PostMapping("/debit/{accountNo}")
+    public ResponseEntity<TransactionStatus> debit(@PathVariable String accountNo, @RequestBody WithdrawalTransaction transaction) throws AccountNotFoundException, InsufficientBalanceException {
+        Account account = accountService.findAccount(accountNo);
+
+        account.post(transaction);
+
+        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK, transaction.getApprovalCode()), HttpStatus.OK);
+    }
+
+
+    @GetMapping("/{accountNo}")
+    public ResponseEntity<Account> getAccount(@PathVariable String accountNo) throws AccountNotFoundException {
+        Account account = accountService.findAccount(accountNo);
+        return new ResponseEntity<>(account, HttpStatus.OK);
+    }
+
 }
