@@ -1,15 +1,22 @@
 package com.eteration.simplebanking.model;
 
 
+import javax.persistence.DiscriminatorValue;
+import javax.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("Withdrawal")
 public class WithdrawalTransaction extends Transaction {
-    public WithdrawalTransaction(double amount) {
-        super(amount);
+
+    public WithdrawalTransaction() {
+        super(TransactionType.WithdrawalTransaction);
     }
 
-    @Override
-    protected boolean isDeposit() {
-        return false;
+    public WithdrawalTransaction(double amount) {
+        super(amount);
+        this.type=TransactionType.WithdrawalTransaction;
     }
+
 }
 
 

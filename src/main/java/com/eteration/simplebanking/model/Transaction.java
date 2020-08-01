@@ -1,13 +1,19 @@
 package com.eteration.simplebanking.model;
 
 
-import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "transaction_type")
 public abstract class Transaction {
+
+    @Id
+    @GeneratedValue
+    private Integer id;
 
     private Date date;
 
@@ -15,9 +21,18 @@ public abstract class Transaction {
 
     private String approvalCode;
 
+    @Enumerated(EnumType.STRING)
+    protected TransactionType type;
+
     @ManyToOne
     @JoinColumn(name = "account_id")
+    @JsonIgnore
     private Account account;
+
+    public Transaction(TransactionType type) {
+        this.date=new Date();
+        this.type=type;
+    }
 
     public Transaction(double amount) {
         this.amount = amount;
@@ -57,5 +72,12 @@ public abstract class Transaction {
         this.account = account;
     }
 
-    protected abstract boolean isDeposit();
+    public TransactionType getType() {
+        return type;
+    }
+
+    public void setType(TransactionType type) {
+        this.type = type;
+    }
+
 }

@@ -5,23 +5,23 @@ import org.springframework.http.HttpStatus;
 
 public class TransactionStatus {
 
-    private HttpStatus status;
+    private String status;
 
     private String approvalCode;
 
     public TransactionStatus() {
     }
 
-    public TransactionStatus(HttpStatus status, String approvalCode) {
+    public TransactionStatus(String status, String approvalCode) {
         this.status = status;
         this.approvalCode = approvalCode;
     }
 
-    public HttpStatus getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(HttpStatus status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

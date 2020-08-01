@@ -8,6 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/account/v1")
 public class AccountController {
@@ -21,6 +23,7 @@ public class AccountController {
 
     @PostMapping
     public ResponseEntity<Account> saveAccount(@RequestBody Account accountToSave) {
+        accountToSave.setAccountNumber(UUID.randomUUID().toString());
         Account account = accountService.saveAccount(accountToSave);
 
         return new ResponseEntity<>(account, HttpStatus.CREATED);
@@ -34,7 +37,7 @@ public class AccountController {
 
         accountService.saveAccount(account);
 
-        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK, transaction.getApprovalCode()), HttpStatus.OK);
+        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK.name(), transaction.getApprovalCode()), HttpStatus.OK);
     }
 
     @PostMapping("/debit/{accountNo}")
@@ -43,7 +46,9 @@ public class AccountController {
 
         account.post(transaction);
 
-        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK, transaction.getApprovalCode()), HttpStatus.OK);
+        accountService.saveAccount(account);
+
+        return new ResponseEntity<>(new TransactionStatus(HttpStatus.OK.name(), transaction.getApprovalCode()), HttpStatus.OK);
     }
 
 

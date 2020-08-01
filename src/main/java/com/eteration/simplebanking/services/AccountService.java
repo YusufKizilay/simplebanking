@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class AccountService {
 
     private AccountRepository accountRepository;
@@ -20,7 +21,6 @@ public class AccountService {
         this.accountRepository = accountRepository;
     }
 
-    @Transactional
     public Account saveAccount(final Account account) {
         return accountRepository.save(account);
     }
@@ -29,7 +29,7 @@ public class AccountService {
         Optional<Account> account = accountRepository.findById(accountId);
 
         if (!account.isPresent()) {
-            throw new AccountNotFoundException();
+            throw new AccountNotFoundException(String.format("Account is not found for identifier %s",accountId));
         }
 
         return account.get();

@@ -1,26 +1,32 @@
 package com.eteration.simplebanking.model;
 
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.OneToMany;
+import org.hibernate.annotations.CreationTimestamp;
+
+import javax.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 public class Account {
 
     private String owner;
 
+    @Id
     private String accountNumber;
 
     private volatile double balance;
 
+    @CreationTimestamp
     private Date createdDate;
 
-    @OneToMany(mappedBy ="account", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "account", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Transaction> transactions = new HashSet<>();
+
+    public Account() {
+    }
 
     public Account(String owner, String accountNumber) {
         this.owner = owner;
@@ -32,8 +38,8 @@ public class Account {
     }
 
     public void withdraw(double amount) throws InsufficientBalanceException {
-        if(this.balance<amount){
-            throw new InsufficientBalanceException();
+        if (this.balance < amount) {
+            throw new InsufficientBalanceException("Balance is insufficient!");
         }
 
         this.balance = this.balance - amount;
@@ -43,12 +49,13 @@ public class Account {
     public void post(Transaction transaction) throws InsufficientBalanceException {
         transaction.setAccount(this);
 
-        if(transaction.isDeposit()){
+        if (TransactionType.DepositTransaction.equals(transaction.getType())) {
             deposit(transaction.getAmount());
-        }
-        else{
+        } else {
             withdraw(transaction.getAmount());
         }
+
+        transaction.setApprovalCode(UUID.randomUUID().toString());
 
         transactions.add(transaction);
     }

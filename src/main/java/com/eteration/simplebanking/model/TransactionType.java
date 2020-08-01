@@ -1,5 +1,5 @@
 package com.eteration.simplebanking.model;
 
 public enum TransactionType {
-    Deposit, Withdrawal;
+    DepositTransaction, WithdrawalTransaction;
 }
